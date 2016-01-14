@@ -14,7 +14,8 @@ import mcubes
 from experiments import reconstruction_3d_test
 from utils import reconstruction_utils
 from off_utils import off_handler
-
+from shape_completion_server.srv import *
+import time
 
 class ShapeCompletionServer(object):
     # create messages that are used to publish feedback/result
@@ -25,10 +26,10 @@ class ShapeCompletionServer(object):
 
         rospy.loginfo('Loading model.')
 
-        weights_filepath = '/home/avinash/research/shape_completion/train/shape_completion_experiments/experiments/ycb_all_shrec_best_weights.h5'
+        self.weights_filepath = '/home/avinash/research/shape_completion/train/shape_completion_experiments/experiments/ycb_all_shrec_best_weights.h5'
         self.patch_size = 30
         self.model = reconstruction_3d_test.get_model()
-        self.model.load_weights(weights_filepath)
+        self.model.load_weights(self.weights_filepath)
         self.smooth_mesh = smooth_mesh
 
         self._action_name = name
@@ -36,11 +37,18 @@ class ShapeCompletionServer(object):
                                                 execute_cb=self.execute_cb, auto_start=False)
         self._as.start()
 
+        self.completion_info_service = rospy.Service('completion_info', CompletionInfo, self.completion_info_cb)
+
         rospy.loginfo('Node Initialized')
+
+    def completion_info_cb(self, req):
+        return CompletionInfoResponse(self.weights_filepath)
+
 
 
     def execute_cb(self, goal):
 
+        start_time = time.time()
         self._feedback = graspit_shape_completion.msg.CompleteMeshFeedback()
         self._result = graspit_shape_completion.msg.CompleteMeshResult()
 
@@ -104,6 +112,8 @@ class ShapeCompletionServer(object):
         for i in range(len(t)):
             self._result.completed_mesh.triangles.append(shape_msgs.msg.MeshTriangle((t[i, 0], t[i, 1], t[i, 2])))
 
+        end_time = time.time()
+        self._result.completion_time = int(1000*(end_time - start_time))
         self._as.set_succeeded(self._result)
 
 if __name__ == '__main__':

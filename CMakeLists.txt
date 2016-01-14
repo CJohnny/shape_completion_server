@@ -4,7 +4,15 @@ project(shape_completion_server)
 ## Find catkin macros and libraries
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
-find_package(catkin REQUIRED actionlib_msgs actionlib graspit_shape_completion)
+find_package(catkin REQUIRED
+    actionlib_msgs
+    actionlib
+    graspit_shape_completion
+    roscpp
+    rospy
+    std_msgs
+    message_generation
+)
 
 ## System dependencies are found with CMake's conventions
 # find_package(Boost REQUIRED COMPONENTS system)
@@ -47,11 +55,11 @@ find_package(catkin REQUIRED actionlib_msgs actionlib graspit_shape_completion)
 # )
 
 ## Generate services in the 'srv' folder
-# add_service_files(
-#   FILES
-#   Service1.srv
-#   Service2.srv
-# )
+add_service_files(
+   FILES
+   CompletionInfo.srv
+
+)
 
 ## Generate actions in the 'action' folder
 # add_action_files(
@@ -61,10 +69,10 @@ find_package(catkin REQUIRED actionlib_msgs actionlib graspit_shape_completion)
 # )
 
 ## Generate added messages and services with any dependencies listed here
-# generate_messages(
-#   DEPENDENCIES
-#   std_msgs  # Or other packages containing msgs
-# )
+ generate_messages(
+   DEPENDENCIES
+   std_msgs  # Or other packages containing msgs
+ )
 
 ################################################
 ## Declare ROS dynamic reconfigure parameters ##
@@ -98,7 +106,7 @@ find_package(catkin REQUIRED actionlib_msgs actionlib graspit_shape_completion)
 catkin_package(
 #  INCLUDE_DIRS include
 #  LIBRARIES shape_completion_server
-#  CATKIN_DEPENDS other_catkin_pkg
+  CATKIN_DEPENDS message_runtime
 #  DEPENDS system_lib
 )
 
